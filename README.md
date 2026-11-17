@@ -23,7 +23,6 @@ Powered by **AMAY TechLab**.
 | Vector database | Qdrant (local folder in development, Qdrant Cloud in production) |
 | Backend | Python 3.11, FastAPI, Uvicorn |
 | Frontend | Plain HTML, CSS and JavaScript, with marked, DOMPurify and highlight.js |
-| Hosting | Render (backend), Vercel (frontend), Qdrant Cloud (database) |
 
 ## How it works
 
@@ -104,25 +103,6 @@ Never commit your `.env` file. Model names change over time; if Groq returns `mo
 4. Uploading a file with the same name replaces the old version. Use the bin icon to delete a document.
 
 You can also drop `.md` or `.txt` files into `backend/data/` before the first run to seed the knowledge base.
-
-## Deploy for free
-
-1. **GitHub:** push the project to a repository (make sure `.env` is not committed).
-2. **Qdrant Cloud:** create a free cluster and copy its URL and API key.
-3. **Render (backend):** New → Web Service
-   - Root Directory: `backend`
-   - Build Command: `pip install -r requirements.txt && python -c "from fastembed import TextEmbedding; TextEmbedding('BAAI/bge-small-en-v1.5', cache_dir='./models')"`
-   - Start Command: `uvicorn app:app --host 0.0.0.0 --port $PORT`
-   - Instance Type: Free
-   - Environment variables: everything in the table above, plus `PYTHON_VERSION=3.11.9`
-4. **Vercel (frontend):** set `API` in `frontend/index.html` to your Render URL, push, then import the repo with Root Directory `frontend` and Framework Preset "Other".
-5. **Lock it down:** set `ALLOWED_ORIGINS` on Render to your Vercel URL (no trailing slash).
-
-Notes for free plans:
-- Render's free service sleeps after about 15 minutes idle and takes around a minute to wake, so open the backend URL before a demo.
-- It has 512 MB of RAM. If the build runs out of memory, use a larger instance or another host with more free RAM.
-- All visitors share your Groq quota, so heavy use can hit rate limits.
-- Free-tier limits change, so check each provider's pricing page.
 
 ## API reference
 
