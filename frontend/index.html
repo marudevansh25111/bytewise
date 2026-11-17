@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark" data-accent="ember">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0b14">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Bytewise </title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+:root{--a1:#ff6b4a;--a2:#ffb347;--bg:#0b0b14;--s1:#12121e;--s2:#1b1b2d;--line:#282842;--tx:#ecebf5;--mu:#9190ab;--user:#23233b;--warn:#ffb84d;--ok:#3ddc97;--r:1rem;--ink:#12121e}
+[data-accent=ocean]{--a1:#2f8cff;--a2:#2fe0d0}
+[data-accent=orchid]{--a1:#a070ff;--a2:#ff6bd6}
+[data-theme=light]{--bg:#f5f4fa;--s1:#fff;--s2:#eceaf5;--line:#dcd9ea;--tx:#17162a;--mu:#65627f;--user:#e6e2f6;--warn:#a86200}
+*{box-sizing:border-box}
+html{font-size:clamp(15px,.3vw + 13.8px,18px);-webkit-text-size-adjust:100%;height:100%}
+body{margin:0;height:100%;color:var(--tx);font:1rem/1.65 "DM Sans",system-ui,sans-serif;background:radial-gradient(60rem 28rem at 8% -8%,color-mix(in srgb,var(--a1) 15%,transparent),transparent),var(--bg);overflow:hidden}
+button,input,textarea{font:inherit;color:inherit}button{cursor:pointer;background:none;border:0;padding:0}
+:focus-visible{outline:2px solid var(--a1);outline-offset:2px}
+#bar{position:fixed;top:0;left:0;height:3px;width:100%;z-index:50;background:linear-gradient(90deg,var(--a1),var(--a2));transform:scaleX(0);transform-origin:left;opacity:0}
+#bar.on{opacity:1;animation:bar 1.6s ease-in-out infinite}@keyframes bar{0%{transform:scaleX(0);transform-origin:left}50%{transform:scaleX(1);transform-origin:left}51%{transform-origin:right}100%{transform:scaleX(0);transform-origin:right}}
+#app{display:flex;height:100dvh}
+/* ripple + buttons */
+.rip{position:relative;overflow:hidden}.r{position:absolute;border-radius:50%;background:currentColor;opacity:.22;transform:scale(0);animation:rp .6s ease-out forwards;pointer-events:none}@keyframes rp{to{transform:scale(1);opacity:0}}
+.ib{display:grid;place-items:center;width:2.5rem;height:2.5rem;border-radius:.8rem;color:var(--mu);transition:background .15s,color .15s,transform .12s;flex:none}
+.ib:active,.pri:active,.chip:active,.card:active{transform:scale(.94)}
+@media(hover:hover){.ib:hover{background:var(--s2);color:var(--tx)}}
+.ib svg{width:1.15rem;height:1.15rem}
+.pri{background:linear-gradient(135deg,var(--a1),var(--a2));color:var(--ink);font-weight:600;border-radius:.85rem;padding:.6rem 1.1rem;transition:transform .12s,filter .15s}
+@media(hover:hover){.pri:hover{filter:brightness(1.08)}}
+/* mascot */
+.mascot{--s:2rem;width:var(--s);height:var(--s);flex:none;position:relative;display:grid;place-items:center;border-radius:38% 62% 55% 45%/50% 45% 55% 50%;background:linear-gradient(135deg,var(--a1),var(--a2));animation:morph 9s ease-in-out infinite;box-shadow:0 0 calc(var(--s)*.5) color-mix(in srgb,var(--a1) 35%,transparent)}
+.mascot.sm{--s:2rem}.mascot.xl{--s:6.5rem;cursor:pointer}
+@keyframes morph{50%{border-radius:56% 44% 40% 60%/44% 56% 44% 56%}}
+.eyes{display:flex;gap:calc(var(--s)*.13);margin-top:calc(var(--s)*-.08)}
+.eye{width:calc(var(--s)*.26);height:calc(var(--s)*.3);background:#fff;border-radius:50%;display:grid;place-items:center;animation:blink 5s infinite}
+.eye b{width:48%;height:48%;border-radius:50%;background:var(--ink);transform:translate(calc(var(--mx,0)*55%),calc(var(--my,0)*55%))}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.mouth{position:absolute;bottom:24%;width:26%;height:13%;border-bottom:calc(var(--s)*.05 + 1px) solid var(--ink);border-radius:0 0 99px 99px;transition:all .2s}
+[data-mood=think] .mouth,[data-mood=think].mascot .mouth{height:15%;width:15%;border:calc(var(--s)*.05 + 1px) solid var(--ink);border-radius:50%}
+[data-mood=think] .eye b{animation:look 1.4s ease-in-out infinite}@keyframes look{0%,100%{transform:translate(-45%,-45%)}50%{transform:translate(45%,-45%)}}
+[data-mood=oops] .mouth{border-bottom:0;border-top:calc(var(--s)*.05 + 1px) solid var(--ink);border-radius:99px 99px 0 0;bottom:20%}
+[data-mood=oops].mascot,[data-mood=oops] .mascot{animation:shake .5s 1}
+@keyframes shake{20%,60%{transform:translateX(-4px) rotate(-6deg)}40%,80%{transform:translateX(4px) rotate(6deg)}}
+.mascot.hop{animation:hop .55s ease-out 1}@keyframes hop{40%{transform:translateY(-1.2rem) scale(1.08)}70%{transform:translateY(0) scale(.95,1.05)}}
+/* sidebar */
+aside{width:18.5rem;flex:none;background:color-mix(in srgb,var(--s1) 92%,transparent);backdrop-filter:blur(14px);border-right:1px solid var(--line);display:flex;flex-direction:column;gap:.7rem;padding:1rem;padding-top:max(1rem,env(safe-area-inset-top));transition:transform .25s cubic-bezier(.2,.8,.2,1);z-index:30}
+.brand{display:flex;align-items:center;gap:.7rem;font:700 1.35rem "Space Grotesk",sans-serif;letter-spacing:-.02em;padding:.2rem .3rem}
+.brand img{width:2.7rem;height:2.7rem;border-radius:.8rem;flex:none;transition:transform .2s;filter:drop-shadow(0 0 .7rem color-mix(in srgb,var(--a1) 30%,transparent))}.brand img:hover{transform:rotate(-6deg) scale(1.07)}#bm[data-mood=think]{animation:glow 1.1s ease-in-out infinite}@keyframes glow{50%{transform:scale(1.12)}}
+.brand small{display:block;font:400 .72rem "DM Sans";color:var(--mu);letter-spacing:0;margin-top:-.25rem}
+#new{width:100%;display:flex;align-items:center;gap:.6rem;justify-content:center;padding:.75rem}
+.sbox{display:flex;align-items:center;gap:.5rem;background:var(--s2);border:1px solid transparent;border-radius:.8rem;padding:0 .75rem;color:var(--mu)}.sbox:focus-within{border-color:var(--a1)}
+.sbox input{flex:1;min-width:0;background:none;border:0;outline:0;padding:.55rem 0}
+#list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:.15rem;margin:0 -.4rem;padding:0 .4rem}
+.chat{display:flex;align-items:center;gap:.4rem;padding:.6rem .7rem;border-radius:.8rem;color:var(--mu);transition:background .15s,transform .15s;cursor:pointer;animation:in .25s both}
+.chat span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat .del{opacity:0;width:1.8rem;height:1.8rem}.chat:hover .del,.chat:focus-within .del{opacity:1}
+@media(hover:none){.chat .del{opacity:.7}}
+@media(hover:hover){.chat:hover{background:var(--s2);color:var(--tx);transform:translateX(2px)}}
+.chat.on{background:var(--s2);color:var(--tx);box-shadow:inset 3px 0 var(--a1)}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+.foot{display:flex;gap:.4rem;border-top:1px solid var(--line);padding-top:.7rem;padding-bottom:env(safe-area-inset-bottom)}
+.foot .kb{flex:1;display:flex;align-items:center;gap:.6rem;padding:.55rem .7rem;border-radius:.8rem;color:var(--mu);text-align:left}
+@media(hover:hover){.foot .kb:hover{background:var(--s2);color:var(--tx)}}
+/* main */
+main{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
+header{display:flex;align-items:center;gap:.4rem;padding:.6rem .9rem;padding-top:max(.6rem,env(safe-area-inset-top));border-bottom:1px solid var(--line);backdrop-filter:blur(10px)}
+#menu{display:none}
+#title{flex:1;min-width:0;background:none;border:1px solid transparent;border-radius:.6rem;padding:.35rem .6rem;font:600 1.02rem "Space Grotesk",sans-serif;text-overflow:ellipsis}
+#title:hover:not(:disabled){border-color:var(--line)}#title:focus{outline:0;border-color:var(--a1);background:var(--s1)}
+.pill{display:flex;align-items:center;gap:.45rem;font-size:.78rem;color:var(--mu);border:1px solid var(--line);border-radius:99px;padding:.25rem .7rem;white-space:nowrap}
+.pill i{width:.5rem;height:.5rem;border-radius:50%;background:var(--warn);animation:pulse 1.4s infinite}.pill.ok i{background:var(--ok);animation:none}
+@keyframes pulse{50%{opacity:.3}}
+#scroll{flex:1;overflow-y:auto;scroll-behavior:smooth;overscroll-behavior:contain}
+#thread{width:min(56rem,100%);margin:0 auto;padding:1.5rem 1.1rem 1rem;display:flex;flex-direction:column;gap:1.5rem}
+@media(min-width:1800px){#thread,.composer{width:min(66rem,100%)}}
+.row{display:flex;gap:.8rem;animation:in .3s both}.row.user{justify-content:flex-end}
+.bubble{background:var(--user);padding:.65rem 1rem;border-radius:1.2rem 1.2rem .3rem 1.2rem;max-width:min(85%,40rem);white-space:pre-wrap;overflow-wrap:anywhere}
+.body{min-width:0;flex:1}.row .mascot{margin-top:.1rem}
+.md>:first-child{margin-top:0}.md>:last-child{margin-bottom:0}.md p,.md ul,.md ol{margin:.6em 0}.md h1,.md h2,.md h3{font-family:"Space Grotesk";margin:1.2em 0 .4em;line-height:1.25}
+.md a{color:var(--a1)}.md blockquote{margin:.8em 0;padding:.1em 1em;border-left:3px solid var(--a1);color:var(--mu)}
+.md table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%}.md th,.md td{border:1px solid var(--line);padding:.4rem .7rem}.md th{background:var(--s2)}
+.md :not(pre)>code{font:.88em "JetBrains Mono",monospace;background:var(--s2);padding:.12em .4em;border-radius:.4rem}
+.cb{margin:.9em 0;border:1px solid #2c313a;border-radius:.9rem;overflow:hidden;background:#282c34}
+.cb .bar{display:flex;justify-content:space-between;align-items:center;padding:.3rem .5rem .3rem .9rem;background:#21252b;color:#9aa4b5;font:.75rem "JetBrains Mono",monospace}
+.cb .bar button{display:flex;gap:.3rem;align-items:center;color:#9aa4b5;padding:.3rem .55rem;border-radius:.5rem}.cb .bar button:hover{color:#fff;background:#323842}
+.cb pre{margin:0;overflow-x:auto}.cb code{font:.84rem/1.6 "JetBrains Mono",monospace;padding:.9rem 1rem!important;display:block;background:transparent!important}
+.typing>:last-child::after{content:"";display:inline-block;width:.5rem;height:1.05em;background:var(--a1);border-radius:2px;margin-left:.2rem;vertical-align:text-bottom;animation:caret 1s steps(2) infinite}@keyframes caret{50%{opacity:0}}
+.dots{display:inline-flex;gap:.3rem;padding:.6rem 0}.dots b{width:.45rem;height:.45rem;border-radius:50%;background:var(--a1);animation:dp 1.2s infinite}.dots b:nth-child(2){animation-delay:.15s}.dots b:nth-child(3){animation-delay:.3s}@keyframes dp{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-.35rem);opacity:1}}
+.refuse .md{border:1px solid var(--warn);border-left-width:.3rem;border-radius:var(--r);padding:.8rem 1rem;background:color-mix(in srgb,var(--warn) 8%,var(--s1))}
+details.srcs{margin-top:.7rem;font-size:.85rem;color:var(--mu)}details summary{cursor:pointer;width:fit-content;padding:.15rem 0}details summary:hover{color:var(--tx)}
+.src{margin-top:.4rem;padding:.5rem .8rem;border-left:3px solid var(--a1);background:var(--s1);border-radius:0 .6rem .6rem 0}.src b{display:block;color:var(--tx);font-weight:600}
+.tools{display:flex;flex-wrap:wrap;gap:.15rem;margin-top:.4rem}.tools button{display:flex;gap:.35rem;align-items:center;padding:.35rem .6rem;border-radius:.6rem;color:var(--mu);font-size:.85rem;transition:background .15s,color .15s,transform .12s}
+.tools button:active{transform:scale(.9)}.tools button.on{color:var(--a1)}
+@media(hover:hover){.tools button:hover{background:var(--s2);color:var(--tx)}}
+/* hero */
+.hero{margin:clamp(1rem,7vh,4.5rem) auto 0;text-align:center;width:100%}
+.hero h1{font:700 clamp(1.7rem,4.4vw,2.6rem)/1.15 "Space Grotesk",sans-serif;letter-spacing:-.03em;margin:1rem 0 .4rem}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--mu);margin:0 auto 1.5rem;max-width:34rem}
+.pills{display:flex;flex-wrap:wrap;gap:.5rem;justify-content:center;margin-bottom:1.1rem}
+.chip{padding:.45rem .95rem;border-radius:99px;border:1px solid var(--line);background:var(--s1);color:var(--mu);transition:all .15s}
+.chip.on{background:linear-gradient(135deg,var(--a1),var(--a2));color:var(--ink);border-color:transparent;font-weight:600}
+@media(hover:hover){.chip:not(.on):hover{color:var(--tx);border-color:var(--a1)}}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.75rem;text-align:left}
+.card{padding:1rem 1.1rem;border:1px solid var(--line);border-radius:var(--r);background:var(--s1);animation:in .35s both;animation-delay:calc(var(--i)*70ms);transition:transform .18s,border-color .18s,box-shadow .18s}
+@media(hover:hover){.card:hover{transform:translateY(-3px);border-color:var(--a1);box-shadow:0 .6rem 1.6rem -.8rem var(--a1)}}
+.card span{color:var(--a1);font:500 .72rem "JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.06em}.card div{margin-top:.25rem}
+/* composer */
+footer{padding:.4rem 1rem max(.8rem,env(safe-area-inset-bottom))}
+.composer{width:min(56rem,100%);margin:0 auto;display:flex;align-items:flex-end;gap:.4rem;background:var(--s1);border:1px solid var(--line);border-radius:1.3rem;padding:.45rem .45rem .45rem 1.1rem;transition:border-color .2s,box-shadow .2s}
+.composer:focus-within{border-color:var(--a1);box-shadow:0 0 0 4px color-mix(in srgb,var(--a1) 18%,transparent)}
+textarea{flex:1;min-width:0;resize:none;border:0;outline:0;background:none;max-height:11rem;padding:.55rem 0;line-height:1.5}
+#send{width:2.75rem;height:2.75rem;border-radius:.95rem;padding:0;display:grid;place-items:center}
+#mic.live{color:#ff4d6d;animation:pulse 1s infinite}
+.hint{text-align:center;color:var(--mu);font-size:.75rem;line-height:1.5;margin:.5rem auto 0;max-width:46rem}.hint button{color:var(--a1);text-decoration:underline;text-underline-offset:2px;font-size:inherit}.tips{padding-left:1.1rem;margin:0 0 1.1rem}.tips li{margin:.6rem 0;color:var(--mu)}.tips b{color:var(--tx)}
+#down{position:absolute;right:1.2rem;bottom:7.5rem;width:2.5rem;height:2.5rem;border-radius:50%;background:var(--s1);border:1px solid var(--line);box-shadow:0 .4rem 1rem #0005;opacity:0;pointer-events:none;transform:translateY(.6rem);transition:all .2s;display:grid;place-items:center}
+#down.show{opacity:1;pointer-events:auto;transform:none}
+/* overlays */
+#scrim{display:none}
+.modal{position:fixed;inset:0;background:#05050bb3;backdrop-filter:blur(4px);display:none;place-items:center;padding:1rem;z-index:60}.modal.open{display:grid;animation:fade .15s}@keyframes fade{from{opacity:0}}
+.dlg,.pbox{width:min(38rem,100%);max-height:90dvh;overflow-y:auto;background:var(--s1);border:1px solid var(--line);border-radius:1.3rem;padding:1.3rem;animation:pop .2s cubic-bezier(.2,.9,.3,1.2)}@keyframes pop{from{transform:scale(.94);opacity:0}}
+.pbox{padding:0;overflow:hidden;align-self:start;margin-top:12vh}.pbox input{width:100%;background:none;border:0;border-bottom:1px solid var(--line);outline:0;padding:1rem 1.2rem}
+#pl{max-height:50dvh;overflow-y:auto;padding:.4rem}.pi{display:flex;justify-content:space-between;gap:1rem;padding:.65rem .8rem;border-radius:.7rem;width:100%;text-align:left}.pi.on{background:var(--s2)}.pi small{color:var(--mu)}
+.dlg h2{font:700 1.3rem "Space Grotesk";margin:0 0 .2rem}.dlg>p{color:var(--mu);margin:0 0 1rem;font-size:.9rem}
+.dlg input[type=text],.dlg input[type=password],.dlg textarea{width:100%;padding:.65rem .8rem;border:1px solid var(--line);border-radius:.7rem;background:var(--bg);margin-bottom:.6rem}
+.tabs{display:flex;gap:.2rem;margin:.9rem 0;border-bottom:1px solid var(--line);overflow-x:auto}.tabs button{padding:.55rem .9rem;color:var(--mu);border-bottom:2px solid transparent;white-space:nowrap}.tabs button.on{color:var(--tx);border-color:var(--a1)}
+.drop{display:block;border:2px dashed var(--line);border-radius:var(--r);padding:2rem 1rem;text-align:center;color:var(--mu);cursor:pointer;transition:all .15s}.drop.over,.drop:hover{border-color:var(--a1);color:var(--tx);background:color-mix(in srgb,var(--a1) 6%,transparent)}
+.doc{display:flex;align-items:center;gap:.7rem;padding:.55rem 0;border-bottom:1px solid var(--line);font-size:.92rem}.doc span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.doc small{color:var(--mu)}
+#kbMsg{font-size:.85rem;min-height:1.3rem;margin:.4rem 0;color:var(--ok)}#kbMsg.err{color:#ff6b81}
+#pop{position:absolute;right:.9rem;top:3.6rem;width:15.5rem;background:var(--s1);border:1px solid var(--line);border-radius:1rem;padding:1rem;z-index:40;box-shadow:0 1rem 2.5rem #0006;animation:pop .18s}
+#pop[hidden]{display:none}#pop h4{margin:0 0 .5rem;font:600 .75rem "JetBrains Mono";color:var(--mu);text-transform:uppercase;letter-spacing:.07em}
+.seg{display:flex;background:var(--s2);border-radius:.8rem;padding:.2rem;margin-bottom:1rem}.seg button{flex:1;padding:.4rem;border-radius:.6rem;color:var(--mu)}.seg button.on{background:var(--s1);color:var(--tx);box-shadow:0 1px 4px #0004}
+.sw{display:flex;gap:.6rem}.sw button{width:2.4rem;height:2.4rem;border-radius:50%;border:3px solid transparent;transition:transform .15s}.sw button:hover{transform:scale(1.12)}.sw button.on{border-color:var(--tx)}
+#toasts{position:fixed;left:50%;bottom:max(6.5rem,env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;flex-direction:column;gap:.5rem;z-index:80;align-items:center;width:max-content;max-width:92vw}
+.toast{display:flex;align-items:center;gap:.9rem;background:var(--tx);color:var(--bg);padding:.55rem 1rem;border-radius:.9rem;font-size:.9rem;animation:pop .2s;box-shadow:0 .5rem 1.5rem #0005}.toast button{font-weight:700;color:var(--a1)}
+.powered{display:flex;align-items:center;justify-content:center;gap:.6rem;font-size:.75rem;color:var(--mu);margin:.6rem 0 0}.powered img{height:2.3rem;width:auto;background:#fff;border-radius:.55rem;padding:.2rem .35rem;flex:none}.powered b{color:var(--tx);font-weight:600}aside .powered{justify-content:flex-start;margin:0;padding:.2rem .2rem 0}
+/* responsive */
+@media(max-width:900px){
+ aside{position:fixed;inset:0 auto 0 0;transform:translateX(-102%);width:min(20rem,86vw);box-shadow:1rem 0 3rem #0008}aside.open{transform:none}
+ #scrim.open{display:block;position:fixed;inset:0;background:#0007;z-index:20;animation:fade .2s}
+ #menu{display:grid}.ib{width:2.75rem;height:2.75rem}}
+@media(max-width:520px){.pill span{display:none}.keys{display:none}.row{gap:.55rem}.bubble{max-width:92%}#down{bottom:6rem}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+<div id="app">
+<div id="scrim"></div>
+<aside id="side">
+  <div class="brand"><img id="bm" src="bytewise-logo.png" alt="Bytewise logo" width="42" height="42"><div>Bytewise<small>your coding buddy</small></div></div>
+  <button class="pri rip" id="new"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>New chat</button>
+  <label class="sbox"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" placeholder="Search chats" aria-label="Search chats"></label>
+  <div id="list"></div>
+  <div class="foot"><button class="kb rip" id="kbBtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/></svg>Knowledge base</button><button class="ib rip" id="palBtn" aria-label="Command palette (Ctrl K)" title="Command palette (Ctrl+K)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></button></div>
+  <div class="powered"><img src="amay-logo.png" alt="AMAY TechLab logo" width="360" height="327"><span>Powered by <b>AMAY TechLab</b></span></div>
+</aside>
+<main>
+  <header>
+    <button class="ib rip" id="menu" aria-label="Open menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
+    <input id="title" value="New chat" aria-label="Chat title" maxlength="80">
+    <div class="pill" id="status"><i></i><span>connecting…</span></div>
+    <button class="ib rip" id="exp" aria-label="Export chat" title="Export chat as Markdown"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 21h14"/></svg></button>
+    <button class="ib rip" id="setBtn" aria-label="Appearance" title="Appearance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1 7 17M17 7l2.1-2.1"/></svg></button>
+    <div id="pop" hidden>
+      <h4>Mode</h4><div class="seg"><button data-theme="dark">Dark</button><button data-theme="light">Light</button></div>
+      <h4>Accent</h4><div class="sw"><button data-accent="ember" style="background:linear-gradient(135deg,#ff6b4a,#ffb347)" aria-label="Ember"></button><button data-accent="ocean" style="background:linear-gradient(135deg,#2f8cff,#2fe0d0)" aria-label="Ocean"></button><button data-accent="orchid" style="background:linear-gradient(135deg,#a070ff,#ff6bd6)" aria-label="Orchid"></button></div>
+    </div>
+  </header>
+  <section id="scroll"><div id="thread"></div></section>
+  <button id="down" class="rip" aria-label="Scroll to latest"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14m0 0-6-6m6 6 6-6"/></svg></button>
+  <footer>
+    <div class="composer">
+      <textarea id="input" rows="1" placeholder="Ask about code, algorithms, OS, databases, system design…" aria-label="Message"></textarea>
+      <button class="ib rip" id="mic" aria-label="Voice input" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+      <button class="pri rip" id="send" aria-label="Send"></button>
+    </div>
+    <p class="hint"><span class="keys">Enter to send · Shift+Enter for new line · Ctrl+K for commands<br></span>Bytewise is AI and can make mistakes. Double-check important answers and never share passwords or personal data. <button type="button" id="tips">Safety tips</button></p>
+  </footer>
+</main>
+</div>
+<div id="toasts" aria-live="polite"></div>
+
+<div class="modal" id="pal"><div class="pbox"><input id="pq" placeholder="Search chats or type a command…" aria-label="Command palette"><div id="pl"></div></div></div>
+
+<div class="modal" id="modal"><div class="dlg" role="dialog" aria-label="Knowledge base">
+  <h2>Knowledge base</h2>
+  <p>Documents here ground Bytewise's answers. Changes apply to the very next question.</p>
+  <input type="password" id="tok" placeholder="Admin token">
+  <div class="tabs"><button data-t="file" class="on">Upload files</button><button data-t="text">Paste text</button><button data-t="url">From URL</button></div>
+  <div id="t-file"><label class="drop" id="drop">Drop .md, .txt or .pdf files here, or tap to choose<input type="file" id="files" multiple accept=".md,.txt,.pdf,.py,.js,.java,.cpp,.c,.ts" hidden></label></div>
+  <div id="t-text" hidden><input type="text" id="ttitle" placeholder="Title (e.g. graphs-notes.md)"><textarea id="tbody" rows="6" placeholder="Paste notes, docs or a cheat sheet"></textarea><button class="pri rip" id="tadd">Add to knowledge base</button></div>
+  <div id="t-url" hidden><input type="text" id="uurl" placeholder="https://docs.python.org/3/tutorial/datastructures.html"><button class="pri rip" id="uadd">Fetch and add</button></div>
+  <div id="kbMsg"></div><div id="docs"></div>
+  <div style="text-align:right;margin-top:1rem"><button class="pri rip" id="kbClose">Done</button></div>
+</div></div>
+
+<div class="modal" id="tipsM"><div class="dlg" role="dialog" aria-label="Safety tips">
+  <h2>Using Bytewise safely</h2>
+  <p>A few things worth knowing before you rely on an answer.</p>
+  <ul class="tips">
+    <li><b>AI can be wrong.</b> Answers may contain mistakes, outdated information or made-up details. Verify important facts against official documentation.</li>
+    <li><b>Test code before using it.</b> Review and run generated code in a safe environment, especially anything that touches files, databases or security.</li>
+    <li><b>Never share secrets.</b> Don't type passwords, API keys, tokens, card numbers or other personal data into the chat.</li>
+    <li><b>Privacy.</b> Your chats are saved only in this browser. Your questions are sent to the server and to an AI provider so an answer can be generated.</li>
+    <li><b>Tech topics only.</b> Bytewise is built for computer science and software questions.</li>
+  </ul>
+  <div style="text-align:right"><button class="pri rip" id="tipsClose">Got it</button></div>
+</div></div>
+
+<script>
+// >>> After deploying the backend, replace with your Render URL (no trailing slash) <<<
+const API = "http://localhost:8000";
+
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const I = {
+  send:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>',
+  stop:'<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="5" y="5" width="14" height="14" rx="3"/></svg>',
+  copy:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>',
+  redo:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12a8 8 0 1 1-3-6.2M20 4v5h-5"/></svg>',
+  del:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
+  up:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M7 11v9H4v-9zM7 11l4-8c2 0 3 1 2.6 3L13 9h6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 18 19H7"/></svg>',
+  down:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" style="transform:scaleY(-1)"><path d="M7 11v9H4v-9zM7 11l4-8c2 0 3 1 2.6 3L13 9h6a2 2 0 0 1 2 2.4l-1.2 6A2 2 0 0 1 18 19H7"/></svg>'
+};
+const mascot = c => `<div class="mascot ${c}"><div class="eyes"><i class="eye"><b></b></i><i class="eye"><b></b></i></div><span class="mouth"></span></div>`;
+const CATS = {
+  "Algorithms": ["Explain Dijkstra's algorithm with Python code and complexity", "Compare quicksort, mergesort and heapsort", "How does dynamic programming differ from memoized recursion?"],
+  "Data Structures": ["When should I use a trie instead of a hash map?", "Explain AVL trees and how rotations work", "How does a heap implement a priority queue?"],
+  "OS": ["How do deadlocks happen and how can they be prevented?", "Explain paging vs segmentation", "What is the difference between a process and a thread?"],
+  "Databases": ["Explain database indexing and B+ trees with an example", "What are ACID properties and isolation levels?", "SQL joins explained with examples"],
+  "Networks": ["What happens when I type a URL and press Enter?", "Explain the TCP three-way handshake", "How does HTTPS and TLS work?"],
+  "System Design": ["Design a URL shortener: components, database and scaling", "How does a load balancer work?", "Explain caching strategies and cache invalidation"],
+  "Web": ["Explain the JavaScript event loop", "REST vs GraphQL: when to use which?", "How do JWT-based logins work?"]
+};
+
+let chats = JSON.parse(localStorage.getItem("bw.chats") || "[]"), cur = null, ctrl = null, cat = "Algorithms";
+const save = () => localStorage.setItem("bw.chats", JSON.stringify(chats.slice(0, 40)));
+const uid = () => Math.random().toString(36).slice(2);
+
+// ---------- settings ----------
+const prefs = JSON.parse(localStorage.getItem("bw.prefs") || "null") || {theme: matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark", accent: "ember"};
+function applyPrefs() {
+  document.documentElement.dataset.theme = prefs.theme; document.documentElement.dataset.accent = prefs.accent;
+  $("meta[name=theme-color]").content = prefs.theme === "dark" ? "#0b0b14" : "#f5f4fa";
+  $$("[data-theme]").forEach(b => b.tagName === "BUTTON" && b.classList.toggle("on", b.dataset.theme === prefs.theme));
+  $$("[data-accent]").forEach(b => b.tagName === "BUTTON" && b.classList.toggle("on", b.dataset.accent === prefs.accent));
+  localStorage.setItem("bw.prefs", JSON.stringify(prefs));
+}
+$$(".seg button").forEach(b => b.onclick = () => { prefs.theme = b.dataset.theme; applyPrefs(); });
+$$(".sw button").forEach(b => b.onclick = () => { prefs.accent = b.dataset.accent; applyPrefs(); });
+$("#setBtn").onclick = e => { e.stopPropagation(); $("#pop").hidden = !$("#pop").hidden; };
+document.addEventListener("click", e => { if (!e.target.closest("#pop")) $("#pop").hidden = true; });
+applyPrefs();
+
+// ---------- small helpers ----------
+function toast(msg, act) {
+  const t = document.createElement("div"); t.className = "toast"; t.textContent = msg;
+  if (act) { const b = document.createElement("button"); b.textContent = act.label; b.onclick = () => { act.fn(); t.remove(); }; t.appendChild(b); }
+  $("#toasts").appendChild(t); setTimeout(() => t.remove(), act ? 5000 : 2200);
+}
+document.addEventListener("pointerdown", e => {
+  const el = e.target.closest(".rip"); if (!el) return;
+  const r = el.getBoundingClientRect(), s = Math.max(r.width, r.height) * 2, d = document.createElement("span");
+  d.className = "r"; d.style.cssText = `width:${s}px;height:${s}px;left:${e.clientX - r.left - s / 2}px;top:${e.clientY - r.top - s / 2}px`;
+  el.appendChild(d); setTimeout(() => d.remove(), 650);
+});
+addEventListener("pointermove", e => { const s = document.documentElement.style;
+  s.setProperty("--mx", (e.clientX / innerWidth * 2 - 1).toFixed(2)); s.setProperty("--my", (e.clientY / innerHeight * 2 - 1).toFixed(2)); }, {passive: true});
+const setBrand = m => $("#bm").dataset.mood = m;
+
+// ---------- rendering ----------
+function enhance(root) {
+  root.querySelectorAll("pre").forEach(pre => {
+    if (pre.parentElement.classList.contains("cb")) return;
+    const code = pre.querySelector("code"); if (!code) return;
+    const lang = ([...code.classList].find(c => c.startsWith("language-")) || "").slice(9) || "code";
+    if (hljs.getLanguage(lang)) code.innerHTML = hljs.highlight(code.textContent, {language: lang}).value; else hljs.highlightElement(code);
+    const w = document.createElement("div"); w.className = "cb";
+    w.innerHTML = `<div class="bar"><span>${lang}</span><button class="rip">${I.copy} Copy</button></div>`;
+    pre.replaceWith(w); w.appendChild(pre);
+    w.querySelector("button").onclick = async e => { await navigator.clipboard.writeText(code.textContent);
+      const b = e.currentTarget; b.textContent = "Copied ✓"; setTimeout(() => b.innerHTML = I.copy + " Copy", 1400); };
+  });
+}
+
+function tool(html, fn, cls) { const b = document.createElement("button"); b.className = "rip " + (cls || ""); b.innerHTML = html; b.onclick = fn; return b; }
+
+function paint(row, m, isLast) {
+  const md = row.querySelector(".md"), srcs = row.querySelector(".srcs"), tools = row.querySelector(".tools");
+  row.querySelector(".mascot").dataset.mood = m.streaming ? "think" : m.refusal ? "oops" : "idle";
+  row.classList.toggle("refuse", !!m.refusal);
+  if (m.refusal) md.textContent = m.content;
+  else if (!m.content && m.streaming) md.innerHTML = '<span class="dots"><b></b><b></b><b></b></span>';
+  else { md.innerHTML = DOMPurify.sanitize(marked.parse(m.content || "")); enhance(md); }
+  md.classList.toggle("typing", !!(m.streaming && m.content));
+  srcs.innerHTML = "";
+  if (m.sources && m.sources.length) {
+    const d = document.createElement("details"); d.className = "srcs";
+    d.innerHTML = `<summary>📚 Grounded in ${m.sources.length} knowledge-base passage${m.sources.length > 1 ? "s" : ""}</summary>`;
+    m.sources.forEach(s => { const e = document.createElement("div"); e.className = "src"; const b = document.createElement("b"); b.textContent = s.doc; e.append(b, s.text + "…"); d.appendChild(e); });
+    srcs.appendChild(d);
+  }
+  tools.innerHTML = "";
+  if (!m.streaming && m.content && !m.refusal) {
+    const c = tool(I.copy + " Copy", () => { navigator.clipboard.writeText(m.content); c.innerHTML = "Copied ✓"; setTimeout(() => c.innerHTML = I.copy + " Copy", 1400); });
+    const up = tool(I.up, () => { m.fb = m.fb === "up" ? "" : "up"; save(); paint(row, m, isLast); toast(m.fb ? "Thanks for the feedback!" : "Feedback removed"); }, m.fb === "up" ? "on" : "");
+    const dn = tool(I.down, () => { m.fb = m.fb === "down" ? "" : "down"; save(); paint(row, m, isLast); toast(m.fb ? "Noted. I'll try to do better." : "Feedback removed"); }, m.fb === "down" ? "on" : "");
+    up.setAttribute("aria-label", "Good answer"); dn.setAttribute("aria-label", "Bad answer");
+    tools.append(c, up, dn);
+  }
+  if (!m.streaming && isLast) tools.appendChild(tool(I.redo + " Regenerate", () => { const u = cur.messages.splice(-2)[0].content; send(u); }));
+}
+
+function rowFor(m, isLast) {
+  const row = document.createElement("div"); row.className = "row " + (m.role === "user" ? "user" : "bot");
+  if (m.role === "user") { row.innerHTML = '<div class="bubble"></div>'; row.firstChild.textContent = m.content; return row; }
+  row.innerHTML = mascot("sm") + '<div class="body"><div class="md"></div><div class="srcs"></div><div class="tools"></div></div>';
+  paint(row, m, isLast); return row;
+}
+
+function greeting() { const h = new Date().getHours();
+  return (h < 5 ? "Burning the midnight oil?" : h < 12 ? "Good morning, coder." : h < 18 ? "Good afternoon, coder." : "Good evening, coder.") ; }
+
+function renderCards() {
+  const box = $(".cards"); if (!box) return; box.innerHTML = "";
+  CATS[cat].forEach((q, i) => { const b = document.createElement("button"); b.className = "card rip"; b.style.setProperty("--i", i);
+    b.innerHTML = `<span>${cat}</span><div></div>`; b.lastChild.textContent = q; b.onclick = () => send(q); box.appendChild(b); });
+  $$(".chip").forEach(c => c.classList.toggle("on", c.textContent === cat));
+}
+
+function renderThread() {
+  const t = $("#thread"); t.innerHTML = "";
+  if (!cur || !cur.messages.length) {
+    t.innerHTML = `<div class="hero">${mascot("xl")}<h1>${greeting()}<br><em>What are we building?</em></h1><p>Ask me anything about programming, algorithms and core computer science. I only talk tech.</p><div class="pills"></div><div class="cards"></div></div>`;
+    const m = t.querySelector(".mascot"); m.title = "Boop!"; m.onclick = () => { m.classList.remove("hop"); void m.offsetWidth; m.classList.add("hop"); };
+    Object.keys(CATS).forEach(k => { const c = document.createElement("button"); c.className = "chip rip"; c.textContent = k; c.onclick = () => { cat = k; renderCards(); }; t.querySelector(".pills").appendChild(c); });
+    renderCards();
+  } else cur.messages.forEach((m, i) => t.appendChild(rowFor(m, i === cur.messages.length - 1)));
+  $("#title").value = cur ? cur.title : "New chat"; $("#title").disabled = !cur;
+  $("#scroll").scrollTop = $("#scroll").scrollHeight; checkDown();
+}
+
+function renderList() {
+  const l = $("#list"), q = $("#q").value.toLowerCase(); l.innerHTML = "";
+  chats.filter(c => c.title.toLowerCase().includes(q)).forEach(c => {
+    const b = document.createElement("div"); b.className = "chat" + (cur && cur.id === c.id ? " on" : ""); b.tabIndex = 0;
+    b.innerHTML = '<span></span><button class="ib del rip" aria-label="Delete chat">' + I.del + "</button>"; b.firstChild.textContent = c.title;
+    const open = () => { if (ctrl) return; cur = c; renderList(); renderThread(); closeSide(); };
+    b.onclick = open; b.onkeydown = e => { if (e.key === "Enter" && e.target === b) open(); };
+    b.querySelector(".del").onclick = e => { e.stopPropagation(); const i = chats.indexOf(c), was = cur === c;
+      chats.splice(i, 1); if (was) cur = null; save(); renderList(); renderThread();
+      toast("Chat deleted", {label: "Undo", fn: () => { chats.splice(i, 0, c); if (was) cur = c; save(); renderList(); renderThread(); }}); };
+    l.appendChild(b);
+  });
+}
+$("#q").oninput = renderList;
+const closeSide = () => { $("#side").classList.remove("open"); $("#scrim").classList.remove("open"); };
+$("#menu").onclick = () => { $("#side").classList.add("open"); $("#scrim").classList.add("open"); };
+$("#scrim").onclick = closeSide;
+function newChat() { if (ctrl) return; cur = null; renderList(); renderThread(); $("#input").focus(); closeSide(); }
+$("#new").onclick = newChat;
+$("#title").onchange = e => { if (cur) { cur.title = e.target.value.trim() || cur.title; e.target.value = cur.title; save(); renderList(); } };
+$("#title").onkeydown = e => { if (e.key === "Enter") e.target.blur(); };
+
+function exportChat() {
+  if (!cur || !cur.messages.length) return toast("Nothing to export yet");
+  const md = "# " + cur.title + "\n\n" + cur.messages.map(m => (m.role === "user" ? "## You\n" : "## Bytewise\n") + m.content).join("\n\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([md], {type: "text/markdown"}));
+  a.download = cur.title.replace(/[^\w-]+/g, "-") + ".md"; a.click(); URL.revokeObjectURL(a.href); toast("Chat exported");
+}
+$("#exp").onclick = exportChat;
+
+const scroller = $("#scroll");
+function checkDown() { $("#down").classList.toggle("show", scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight > 320); }
+scroller.addEventListener("scroll", checkDown, {passive: true});
+$("#down").onclick = () => scroller.scrollTo({top: scroller.scrollHeight});
+
+// ---------- sending / streaming ----------
+function setBusy(b) { $("#send").innerHTML = b ? I.stop : I.send; $("#send").setAttribute("aria-label", b ? "Stop" : "Send");
+  $("#bar").classList.toggle("on", b); setBrand(b ? "think" : "idle"); }
+setBusy(false);
+
+async function send(text) {
+  if (ctrl || !text.trim()) return;
+  if (!cur) { cur = {id: uid(), title: "New chat", messages: []}; chats.unshift(cur); }
+  const history = cur.messages.filter(m => !m.refusal && m.content).slice(-8).map(({role, content}) => ({role, content}));
+  if (cur.title === "New chat") cur.title = text.slice(0, 42);
+  cur.messages.push({role: "user", content: text});
+  const bot = {role: "assistant", content: "", streaming: true, sources: []};
+  cur.messages.push(bot); save(); renderList(); renderThread();
+  const row = $("#thread").lastElementChild;
+  ctrl = new AbortController(); setBusy(true); let queued = false;
+  const repaint = () => { if (queued) return; queued = true; requestAnimationFrame(() => { queued = false;
+    const near = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 160;
+    paint(row, bot, true); if (near) scroller.scrollTop = scroller.scrollHeight; }); };
+  try {
+    const res = await fetch(API + "/chat/stream", {method: "POST", signal: ctrl.signal, headers: {"Content-Type": "application/json"}, body: JSON.stringify({message: text, history})});
+    if (!res.ok) throw new Error("Server returned " + res.status);
+    const rd = res.body.getReader(), dec = new TextDecoder(); let buf = "";
+    for (;;) {
+      const {done, value} = await rd.read(); if (done) break;
+      buf += dec.decode(value, {stream: true}); let i;
+      while ((i = buf.indexOf("\n")) >= 0) {
+        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 1); if (!line) continue;
+        const ev = JSON.parse(line);
+        if (ev.type === "token") bot.content += ev.t;
+        else if (ev.type === "sources") bot.sources = ev.items;
+        else if (ev.type === "refusal") { bot.content = ev.t; bot.refusal = true; }
+        else if (ev.type === "error") bot.content += "\n\n**" + ev.t + "**";
+        repaint();
+      }
+    }
+  } catch (e) {
+    if (e.name !== "AbortError") bot.content += (bot.content ? "\n\n" : "") + "**Request failed:** " + e.message + ". If the free server was asleep, wait a few seconds and try again.";
+  }
+  bot.streaming = false; ctrl = null; setBusy(false); save(); paint(row, bot, true); renderList();
+  scroller.scrollTop = scroller.scrollHeight; $("#input").focus();
+}
+
+const input = $("#input");
+const autosize = () => { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 176) + "px"; };
+input.addEventListener("input", autosize);
+input.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); go(); } });
+function go() { if (ctrl) { ctrl.abort(); return; } const t = input.value.trim(); if (!t) return; input.value = ""; autosize(); send(t); }
+$("#send").onclick = go;
+
+// voice input
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SR) { const mic = $("#mic"); mic.hidden = false; let rec, on = false;
+  mic.onclick = () => { if (on) { rec.stop(); return; } rec = new SR(); rec.lang = navigator.language || "en-US"; rec.interimResults = true; const base = input.value;
+    rec.onresult = e => { input.value = (base + " " + [...e.results].map(r => r[0].transcript).join("")).trim(); autosize(); };
+    rec.onstart = () => { on = true; mic.classList.add("live"); }; rec.onend = () => { on = false; mic.classList.remove("live"); };
+    rec.onerror = () => toast("Microphone unavailable"); rec.start(); }; }
+
+// ---------- command palette ----------
+let palIdx = 0, palItems = [];
+const pq = $("#pq");
+function palRender() {
+  const q = pq.value.toLowerCase();
+  const acts = [
+    {t: "New chat", h: "Start fresh", fn: newChat},
+    {t: "Open knowledge base", h: "Add or remove documents", fn: openKB},
+    {t: "Toggle dark / light", h: "Appearance", fn: () => { prefs.theme = prefs.theme === "dark" ? "light" : "dark"; applyPrefs(); }},
+    {t: "Next accent colour", h: "Appearance", fn: () => { const a = ["ember", "ocean", "orchid"]; prefs.accent = a[(a.indexOf(prefs.accent) + 1) % 3]; applyPrefs(); }},
+    {t: "Safety tips", h: "Using AI responsibly", fn: () => $("#tipsM").classList.add("open")},
+    {t: "Export current chat", h: "Markdown file", fn: exportChat},
+    {t: "Delete all chats", h: "Cannot be undone", fn: () => { if (confirm("Delete all chats?")) { chats = []; cur = null; save(); renderList(); renderThread(); } }}
+  ].concat(chats.map(c => ({t: c.title, h: "Chat", fn: () => { cur = c; renderList(); renderThread(); }})));
+  palItems = acts.filter(a => a.t.toLowerCase().includes(q)).slice(0, 12); palIdx = Math.min(palIdx, Math.max(palItems.length - 1, 0));
+  const l = $("#pl"); l.innerHTML = "";
+  palItems.forEach((a, i) => { const b = document.createElement("button"); b.className = "pi" + (i === palIdx ? " on" : "");
+    b.innerHTML = "<span></span><small></small>"; b.firstChild.textContent = a.t; b.lastChild.textContent = a.h;
+    b.onclick = () => runPal(i); b.onmouseenter = () => { palIdx = i; $$(".pi").forEach((x, j) => x.classList.toggle("on", j === i)); }; l.appendChild(b); });
+}
+function runPal(i) { const a = palItems[i]; if (a) { closeAll(); a.fn(); } }
+function openPal() { $("#pal").classList.add("open"); pq.value = ""; palIdx = 0; palRender(); pq.focus(); }
+pq.oninput = () => { palIdx = 0; palRender(); };
+pq.onkeydown = e => { if (e.key === "ArrowDown") { palIdx = Math.min(palIdx + 1, palItems.length - 1); e.preventDefault(); palRender(); }
+  else if (e.key === "ArrowUp") { palIdx = Math.max(palIdx - 1, 0); e.preventDefault(); palRender(); } else if (e.key === "Enter") runPal(palIdx); };
+$("#palBtn").onclick = openPal;
+const closeAll = () => { $$(".modal").forEach(m => m.classList.remove("open")); $("#pop").hidden = true; };
+$$(".modal").forEach(m => m.addEventListener("mousedown", e => { if (e.target === m) closeAll(); }));
+document.addEventListener("keydown", e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") { e.preventDefault(); openPal(); }
+  if (e.key === "Escape") { closeAll(); closeSide(); }
+});
+
+// ---------- server status ----------
+async function ping() { const s = $("#status");
+  try { const j = await (await fetch(API + "/")).json(); s.classList.add("ok"); s.querySelector("span").textContent = j.chunks + " passages indexed"; }
+  catch { s.classList.remove("ok"); s.querySelector("span").textContent = "server offline"; } }
+$("#status span").textContent = "waking server…"; ping();
+
+// ---------- knowledge base manager ----------
+const tok = () => $("#tok").value.trim();
+$("#tok").value = localStorage.getItem("bw.tok") || "";
+const kbMsg = (m, err) => { const e = $("#kbMsg"); e.textContent = m; e.className = err ? "err" : ""; };
+async function kb(path, opt = {}) {
+  localStorage.setItem("bw.tok", tok());
+  const r = await fetch(API + path, {...opt, headers: {"x-admin-token": tok(), ...(opt.headers || {})}});
+  const j = await r.json().catch(() => ({})); if (!r.ok) throw new Error(j.detail || r.statusText); return j;
+}
+async function loadDocs() {
+  try { const docs = await (await fetch(API + "/kb")).json(), box = $("#docs"); box.innerHTML = "";
+    docs.forEach(d => { const e = document.createElement("div"); e.className = "doc"; e.innerHTML = "<span></span><small></small><button class='ib rip' aria-label='Delete document'></button>";
+      e.querySelector("span").textContent = d.doc; e.querySelector("small").textContent = d.chunks + " chunks";
+      const b = e.querySelector("button"); b.innerHTML = I.del;
+      b.onclick = async () => { try { await kb("/kb?doc=" + encodeURIComponent(d.doc), {method: "DELETE"}); kbMsg("Removed " + d.doc); loadDocs(); } catch (x) { kbMsg(x.message, 1); } };
+      box.appendChild(e); });
+  } catch { kbMsg("Cannot reach the server.", 1); }
+}
+async function run(fn) { kbMsg("Working…"); try { await fn(); kbMsg("Added to knowledge base ✓"); loadDocs(); } catch (x) { kbMsg(x.message, 1); } }
+function openKB() { $("#modal").classList.add("open"); kbMsg(""); loadDocs(); closeSide(); }
+$("#kbBtn").onclick = openKB;
+$("#kbClose").onclick = () => { closeAll(); ping(); };
+$$(".tabs button").forEach(b => b.onclick = () => { $$(".tabs button").forEach(x => x.classList.toggle("on", x === b));
+  ["file", "text", "url"].forEach(t => $("#t-" + t).hidden = t !== b.dataset.t); });
+const upload = fl => run(() => { const f = new FormData(); [...fl].forEach(x => f.append("files", x)); return kb("/kb/upload", {method: "POST", body: f}); });
+$("#files").onchange = e => upload(e.target.files);
+const drop = $("#drop");
+["dragover", "dragenter"].forEach(n => drop.addEventListener(n, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(n => drop.addEventListener(n, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => upload(e.dataTransfer.files));
+$("#tadd").onclick = () => run(() => kb("/kb/text", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({title: $("#ttitle").value || "notes.md", text: $("#tbody").value})}));
+$("#uadd").onclick = () => run(() => kb("/kb/url", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({url: $("#uurl").value})}));
+
+$("#tips").onclick = () => $("#tipsM").classList.add("open");
+$("#tipsClose").onclick = closeAll;
+renderList(); renderThread();
+</script>
+</body>
+</html>
