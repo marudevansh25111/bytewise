@@ -74,6 +74,10 @@ def add_doc(doc, text):
 
 if not qc.collection_exists(COL):
     qc.create_collection(COL, vectors_config=models.VectorParams(size=384, distance=models.Distance.COSINE))
+try:  # Qdrant Cloud requires an index on any field used in a filter
+    qc.create_payload_index(COL, field_name="doc", field_schema=models.PayloadSchemaType.KEYWORD)
+except Exception as e:
+    print("payload index:", e)
 if qc.count(COL).count == 0:  # seed from ./data on first run
     for p in sorted(glob.glob("data/**/*.md", recursive=True) + glob.glob("data/**/*.txt", recursive=True)):
         add_doc(os.path.basename(p), open(p, encoding="utf-8").read())
